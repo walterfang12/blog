@@ -1,0 +1,59 @@
+---
+
+---
+
+<div id="waline"></div>
+
+<script>
+  import { init, type WalineInstance } from "@waline/client";
+  import "@waline/client/waline.css";
+
+  function loadWaline() {
+    const walineInstance = init({
+      el: "#waline",
+      serverURL: "https://waline.walterfang.site", // 改成你的Waline域名
+      path: window.location.pathname,
+      lang: "zh-CN",
+      dark: 'html[data-theme="dark"]', // 自动适配暗色模式
+      imageUploader: false, // 关闭图片上传功能
+      login: "disable", // 禁止第三方登录
+      search: false, // 关闭表情包搜索
+      emoji: [
+        "//unpkg.com/@waline/emojis@latest/weibo",
+        "//unpkg.com/@waline/emojis@latest/bilibili",
+      ],
+      meta: ["nick", "mail"],
+      requiredMeta: ["nick"], // 设置昵称必填
+      pageSize: 10,
+    });
+
+    return walineInstance;
+  }
+
+  // 存储实例，方便页面切换时销毁
+  /** @type {import('@waline/client').WalineInstance | null} */
+  let walineInstance: WalineInstance | null = null;
+
+  // 页面首次加载
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      walineInstance = loadWaline();
+    });
+  } else {
+    walineInstance = loadWaline();
+  }
+
+  // 【关键】视图过渡路由兼容
+  document.addEventListener("astro:page-load", () => {
+    if (walineInstance && walineInstance.destroy) {
+      walineInstance.destroy();
+    }
+    walineInstance = loadWaline();
+  });
+</script>
+
+<style>
+  #waline {
+    margin-top: 2rem;
+  }
+</style>
